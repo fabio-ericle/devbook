@@ -1,0 +1,15 @@
+.container-login {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   width: 100%;
+   height: 80vmin;
+   background-color: #eff5f0;
+ }
+ 
+ .container-form {
+   border: 1px black;
+   width: 350px;
+   background-color: #dfe0df;
+   padding: 15px;
+ }
