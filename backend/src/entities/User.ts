@@ -12,6 +12,9 @@ export class User {
    @Column()
    user_email: string;
 
+   @Column()
+   user_password: string;
+
    constructor() {
       if(!this.user_id) {
          this.user_id = uuid();

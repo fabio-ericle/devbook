@@ -3,14 +3,14 @@ import cors from 'cors';
 import express, { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import "./database";
-import { create, list } from './routes';
+import { create, update, list, del } from './routes';
 
 dotenv.config();
 const port = parseInt(process.env.PORT as string) || 3001;
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(create, list);
+app.use(create, update, list, del);
 app.use((err: Error, request: Request, response: Response, next: NextFunction) => {
    if(err instanceof Error) {
       return response.status(400).json({
@@ -23,5 +23,5 @@ app.use((err: Error, request: Request, response: Response, next: NextFunction) =
    });
 });
 app.listen(port, () => {
-   console.log("Server os running!", port);
+   console.log("Server is running!", port);
 });
