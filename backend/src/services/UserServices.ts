@@ -2,7 +2,7 @@ import { getCustomRepository, getConnection } from 'typeorm';
 import { UserRepository } from '../repositories/UserRepository';
 import { classToPlain } from 'class-transformer';
 import { User } from '../entities/User';
-import { hash } from 'bcryptjs';
+import { hash, compare } from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
 
 interface UserProps {
@@ -14,7 +14,7 @@ interface UserProps {
    },
 }
 
-export class UserService {
+export class UserServices {
 
    async create({ data }: UserProps,) {
       const userRepository = getCustomRepository(UserRepository);
@@ -37,7 +37,7 @@ export class UserService {
       const token = sign({ email, password }, process.env.SESSION_TOKEN as string, {
          subject: user.user_id,
          expiresIn: "1d"
-      })
+      });
       return {
          "status" : "salvo",
          "user": {
@@ -59,6 +59,19 @@ export class UserService {
          ]
       });
       return classToPlain(users);
+   }
+
+   async getId(id: string) {
+      const userRepository = getCustomRepository(UserRepository);
+      const user = await userRepository.findOne({ user_id : id }, 
+         {select: [
+               "user_id", "user_name"
+            ],
+         });
+      if(!user) {
+         throw new Error("Usuário não encontrado!");
+      }
+      return classToPlain(user);
    }
    
    async update({ data }: UserProps) {
@@ -90,5 +103,32 @@ export class UserService {
          user_id : user_id!,
       });
       return {"status" : "salvo"};
+   }
+
+   async auth({ data: { user_email, user_password } }: UserProps) {
+      const userRepository = getCustomRepository(UserRepository);
+      if(user_email.length < 5 || user_password.length < 5) {
+         throw new Error("Não foi possível concluir a ação!");
+      }
+      const user = await userRepository.findOne({ "user_email" : user_email });
+      if(!user) {
+         throw new Error("Email/Senha incorretos!");
+      }
+      const passwordMatch = await compare(user_password, user.user_password);
+      if(!passwordMatch) {
+         throw new Error("Email/Senha incorretos!");
+      }
+      const token = sign({ user_email, user_password }, process.env.SESSION_TOKEN as string, {
+         subject: user.user_id,
+         expiresIn: "1d"
+      });
+      return {
+         "user": {
+            "token": token,
+            "user_id": user.user_id,
+            "user_name": user.user_name,
+            "user_email": user.user_email            
+         },
+      };
    }
 }
