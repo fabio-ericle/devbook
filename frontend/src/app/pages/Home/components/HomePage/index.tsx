@@ -7,7 +7,7 @@ export const HomePage = () => {
          <NavBarComponent />
          <div className="container-grid-home">
             <div className="area1">
-               <div className="left"></div>
+               <div className="left"><h1>A1</h1></div>
             </div>
             <div className="area2">
                <div className="center">
@@ -15,7 +15,7 @@ export const HomePage = () => {
                </div>
             </div>
             <div className="area3">
-               <div className="right"></div>
+               <div className="right"><h1>A2</h1></div>
             </div>
          </div>
       </>

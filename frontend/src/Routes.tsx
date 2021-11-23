@@ -6,6 +6,7 @@ import { LoginPage } from './app/pages/Login';
 
 import GlobalContext from '../src/context/index';
 import { SiginPage } from './app/pages/Sigin';
+import { ProfilePage } from './app/pages/Profile';
 
 // const RequireAuth: React.FC<{ children: JSX.Element, redirect: string }> = ({ children, redirect }) => {
 //   if(!isAuthenticated()) {
@@ -20,8 +21,9 @@ export const App = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={ <Home /> } />
-          <Route path="/cadastre-se" element={<SiginPage />} />
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/cadastre-se" element={ <SiginPage /> } />
+          <Route path="/login" element={ <LoginPage /> } />
+          <Route path="/perfil" element={ <ProfilePage /> } />
         </Routes>
       </BrowserRouter>
     </GlobalContext>

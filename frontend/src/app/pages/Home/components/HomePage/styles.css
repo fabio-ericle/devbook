@@ -10,49 +10,96 @@
    grid-area: sidebar;
 }
 
-.container-grid-home {
-   display: grid;
-   grid-template-columns: 19% 60% 19%;
-   /* grid-template-rows: auto; */
-   grid-template-areas: 
-    "menu menu menu "
-    "main  . sidebar"
-    "center center center";
-   background-color: rgb(255, 255, 255);
-   grid-gap: 15px;
-   padding: 10px;
+@media (min-width: 950px) {
+   .container-grid-home {
+      display: grid;
+      grid-template-columns: 23% 50% 23%;
+      justify-content: center;
+      grid-template-areas: 
+       "menu menu menu "
+       "main  . sidebar"
+       "center center center";
+      background-color: rgb(255, 255, 255);
+      grid-gap: 15px;
+      padding: 10px;
+   }
+   
+   .container-grid-home div {
+      text-align: center;
+      justify-content: center;
+   }
+   
+   .left {
+      height: 250px;
+      width: 100%;
+      background-color: #2e7bdb;
+      border-radius: 10px;
+   
+   }
+   
+   .center {
+      min-height: 600px;
+      width: 100%;
+      background-color: rgb(168, 168, 168);
+      border-radius: 10px;
+      /* margin: 10px 20px 5px 20px; */
+   }
+   
+   .right {
+      height: 250px;
+      width: 100%;
+      background-color: #2e7bdb;
+      border-radius: 10px;
+   }
+   
+   .boas-vindas {
+      font-size: 25px;
+      color: white;
+      font-weight: bold;
+   }   
 }
 
-.container-grid-home div {
-   text-align: center;
-   justify-content: center;
+@media (max-width: 950px) {
+   .container-grid-home {
+      display: flex;
+      justify-content: center;      
+      background-color: rgb(255, 255, 255);
+      padding: 10px;
+   }
+   
+   .container-grid-home div {
+      text-align: center;
+      justify-content: center;
+      visibility:var();
+   }
+   
+   .left {
+      height: 250px;
+      width: 0px;
+      background-color: #2e7bdb;
+      border-radius: 10px;
+   
+   }
+   
+   .center {
+      min-height: 600px;
+      width: 100%;
+      background-color: rgb(168, 168, 168);
+      /* border-radius: 10px; */
+      /* margin: 10px 20px 5px 20px; */
+   }
+   
+   .right {
+      height: 250px;
+      width: 0px;
+      background-color: #2e7bdb;
+      border-radius: 10px;
+   }
+   
+   .boas-vindas {
+      font-size: 25px;
+      color: white;
+      font-weight: bold;
+   }   
 }
 
-.left {
-   height: 250px;
-   width: 100%;
-   background-color: #2e7bdb;
-   border-radius: 10px;
-
-}
-
-.center {
-   height: 750px;
-   width: 100%;
-   background-color: rgb(168, 168, 168);
-   border-radius: 10px;
-   /* margin: 10px 20px 5px 20px; */
-}
-
-.right {
-   height: 250px;
-   width: 100%;
-   background-color: #2e7bdb;
-   border-radius: 10px;
-}
-
-.boas-vindas {
-   font-size: 25px;
-   color: white;
-   font-weight: bold;
-}
