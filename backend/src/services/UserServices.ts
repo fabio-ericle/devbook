@@ -39,13 +39,15 @@ export class UserServices {
          expiresIn: "1d"
       });
       return {
-         "status": "salvo",
+         "status": "salvo",   
          "user": {
             "token": token,
-            "user_id": user.user_id,
-            "user_name": data.user_name,
-            "user_email": data.user_email
-         }
+            "data" : {
+               "user_id": user.user_id,
+               "user_name": data.user_name,
+               "user_email": data.user_email,
+            },
+         },
       };
    }
 
