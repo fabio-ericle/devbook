@@ -14,4 +14,18 @@ export class PostController {
       const result = await postServices.get();
       return response.json(result);
    }
+
+   async getById(request: Request, response: Response) {
+      const { id } = request.query;
+      const postServices = new PostServices();
+      const post = await postServices.getById(id as string);
+      return response.json(post);
+   }
+
+   async delete(request: Request, response: Response) {
+      const { id } = request.query;
+      const postServices = new PostServices();
+      const result = await postServices.delete(id as string);
+      return response.json(result);
+   }
 }

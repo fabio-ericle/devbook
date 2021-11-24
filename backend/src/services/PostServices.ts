@@ -39,4 +39,31 @@ export class PostServices {
       const posts = await postRepository.find();
       return classToPlain(posts);
    }
+
+   async getById(id: string) {
+      if (id.length < 10 || id === '') {
+         throw new Error("Impossível concluir a ação!");
+      }
+      const postRepository = getCustomRepository(PostRepository);
+      const post = await postRepository.findOne({ "post_id": id });
+      if (!post) {
+         throw new Error("Publicação não encontrada!");
+      }
+      return classToPlain(post);
+   }
+
+   async delete(id: string) {
+      if (id.length < 10 || id === '') {
+         throw new Error("Impossível concluir a ação!");
+      }
+      const postRepository = getCustomRepository(PostRepository);
+      const post = await postRepository.findOne({ "post_id": id });
+      if (!post) {
+         throw new Error("Publicação não encontrada!");
+      }
+      await postRepository.delete({
+         "post_id" : id
+      });
+      return {"status" : "concluído"};
+   }
 }
