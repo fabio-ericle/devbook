@@ -4,6 +4,7 @@
    - Express
    - TypeORM
    - PostgreSQL
+   - Json Web Token
 
 # 
 ``` typescript
