@@ -34,9 +34,11 @@ export class UserServices {
       await userRepository.save(user);
       const email = data.user_email;
       const password = data.user_password;
-      const token = sign({ email, password }, process.env.SESSION_TOKEN as string, {
-         subject: user.user_id,
-         expiresIn: "1d"
+      const token = sign({ email, password }, 
+         process.env.SESSION_TOKEN as string, 
+         {
+            subject: user.user_id,
+            expiresIn: "14d"
       });
       return {
          "status": "salvo",   
@@ -121,9 +123,11 @@ export class UserServices {
       if (!passwordMatch) {
          throw new Error("Email/Senha incorretos!");
       }
-      const token = sign({ user_email, user_password }, process.env.SESSION_TOKEN as string, {
-         subject: user.user_id,
-         expiresIn: "1d"
+      const token = sign({ user_email, user_password }, 
+         process.env.SESSION_TOKEN as string, 
+         {
+            subject: user.user_id,
+            expiresIn: "14d"
       });
       return classToPlain({
          "user": {
