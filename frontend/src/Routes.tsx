@@ -4,7 +4,6 @@ import { Home } from './app/pages/Home';
 import { LoginPage } from './app/pages/Login';
 // import { isAuthenticated } from './app/Services/Auth/auth';
 
-import GlobalContext from '../src/context/index';
 import { SiginPage } from './app/pages/Sigin';
 import { ProfilePage } from './app/pages/Profile';
 
@@ -15,9 +14,8 @@ import { ProfilePage } from './app/pages/Profile';
 //   return children;
 // };
 
-export const App = () => {
+const Router = () => {
   return (
-    <GlobalContext>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={ <Home /> } />
@@ -26,6 +24,7 @@ export const App = () => {
           <Route path="/perfil" element={ <ProfilePage /> } />
         </Routes>
       </BrowserRouter>
-    </GlobalContext>
   );
 }
+
+export default Router;
