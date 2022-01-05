@@ -1,4 +1,4 @@
-import { getCustomRepository, getConnection } from 'typeorm';
+import { getCustomRepository, getConnection, getRepository } from 'typeorm';
 import { UserRepository } from '../repositories/UserRepository';
 import { classToPlain } from 'class-transformer';
 import { User } from '../entities/User';
@@ -65,18 +65,15 @@ export class UserServices {
       return classToPlain(users);
    }
 
-   async getById(id: string) {
-      const userRepository = getCustomRepository(UserRepository);
-      const user = await userRepository.findOne({ user_id: id },
-         {
-            select: [
-               "user_id", "user_name"
-            ],
-         });
-      if (!user) {
+   async getById(user_id: string) {
+      const userRepository = getRepository(User);
+      const currentUser = await userRepository.findOne({ where: { user_id : user_id }});
+      if (!user_id) {
          throw new Error("Usuário não encontrado!");
       }
-      return classToPlain(user);
+      delete currentUser.user_password;
+
+      return currentUser;
    }
 
    async update({ data }: UserProps) {
