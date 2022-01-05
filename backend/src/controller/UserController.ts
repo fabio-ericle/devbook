@@ -16,9 +16,8 @@ export class UserController {
    }
 
    async user(request: Request, response: Response) {
-      const { id } = request.query;
       const userServices = new UserServices();
-      const user = await userServices.getById(id as string);
+      const user = await userServices.getById(request.user_id);
       return response.json(user);
    }
 
