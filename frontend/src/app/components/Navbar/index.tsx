@@ -1,8 +1,14 @@
 import { Button, Container, Form, FormControl, Nav, Navbar, NavDropdown } from "react-bootstrap";
 
-import { isAuthenticated } from '../../Services/Auth/auth';
+import { isAuthenticated, logout } from '../../Services/Auth/auth';
 
 export const NavBarComponent = () => {
+
+   function handleLogout() {
+      logout();
+      window.location.href = "/";
+   }
+
    return (
       <Navbar bg="light" expand="lg">
          <Container fluid>
@@ -42,7 +48,7 @@ export const NavBarComponent = () => {
                               <NavDropdown.Item href="#">Another action</NavDropdown.Item>
                               <NavDropdown.Item href="central-ajuda">Central de ajudas</NavDropdown.Item>
                               <NavDropdown.Divider />
-                              <NavDropdown.Item href="/sair">Sair</NavDropdown.Item>
+                              <NavDropdown.Item onClick={() => handleLogout()} >Sair</NavDropdown.Item>
                            </NavDropdown>
                         </>
                         : <>
