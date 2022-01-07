@@ -24,30 +24,28 @@ export const LoginPage = () => {
 
   const HandleToast = () => {
     return (
-      isAuthenticated()
-        ? <>{<Navigate to={{ pathname: "/home" }} />}</>
-        : <>
-          <div>
-            <Row>
-              <Col xs={6}>
-                <ToastContainer className="p-3" position="top-center">
-                  <Toast onClose={() => setShow(false)} show={show} delay={3000} autohide>
-                    <Toast.Header>
-                      <strong className="me-auto">Recruter login</strong>
-                    </Toast.Header>
-                    <Toast.Body>{err}</Toast.Body>
-                  </Toast>
-                </ToastContainer>
-              </Col>
-            </Row>
-          </div>
-        </>
+      <>
+        <div>
+          <Row>
+            <Col xs={6}>
+              <ToastContainer className="p-3" position="top-center">
+                <Toast onClose={() => setShow(false)} show={show} delay={3000} autohide>
+                  <Toast.Header>
+                    <strong className="me-auto">Recruter login</strong>
+                  </Toast.Header>
+                  <Toast.Body>{err}</Toast.Body>
+                </Toast>
+              </ToastContainer>
+            </Col>
+          </Row>
+        </div>
+      </>
     );
   }
 
   function handleLogin() {
-    if ((userEmail && password) !== '') {
-      const user = {
+    if (userEmail.length > 6 && password.length > 4) {
+      const userData = {
         user_email: userEmail,
         user_password: password
       };
@@ -59,15 +57,15 @@ export const LoginPage = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(user)
+        body: JSON.stringify(userData)
       })
         .then(response => response.json())
         .then((data) => {
           setLoading(false);
-          const { error, token, user } = data;
+          const { error, user } = data;
           if (!error) {
-            login(token, user);
-            window.location.href = "/home";
+            login(user);
+            window.location.href = "/";
           } else {
             setErr(error);
             setShow(true);
@@ -82,39 +80,41 @@ export const LoginPage = () => {
   }
 
   return (
-    <>
-      <NavBarComponent />
-      <HandleToast />
-      <div className="container-login">
-        <Form className="container-form">
-          <Form.Group className="mb-3" controlId="formEmail">
-            <Form.Label>Email</Form.Label>
-            <Form.Control spellCheck={false} type="email" placeholder="Seu email" onChange={(e) => setEmail(e.target.value)} required={true} />
-          </Form.Group>
+    isAuthenticated()
+      ? <>{<Navigate to={{ pathname: "/" }} />}</>
+      : <>
+        <NavBarComponent />
+        <HandleToast />
+        <div className="container-login">
+          <Form className="container-form">
+            <Form.Group className="mb-3" controlId="formEmail">
+              <Form.Label>Email</Form.Label>
+              <Form.Control spellCheck={false} type="email" placeholder="Seu email" onChange={(e) => setEmail(e.target.value)} required={true} />
+            </Form.Group>
 
-          <Form.Group className="mb-3" controlId="formPassword">
-            <Form.Label>Senha</Form.Label>
-            <Form.Control spellCheck={false} type="password" placeholder="Sua senha" onChange={(e) => setPassword(e.target.value)} autoComplete="off" />
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="formBasicCheckbox">
-            <Form.Check type="checkbox" label="Salvar senha" />
-          </Form.Group>
-          <Button variant="primary" disabled={loading} onClick={() => handleLogin()} style={{
-            width: '100%',
-            background: 'grey',
-          }}>
-            {
-              loading
-                ? <>
-                  <Spinner animation="border" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                  </Spinner>
-                </>
-                : <>Entrar</>
-            }
-          </Button>
-        </Form>
-      </div>
-    </>
+            <Form.Group className="mb-3" controlId="formPassword">
+              <Form.Label>Senha</Form.Label>
+              <Form.Control spellCheck={false} type="password" placeholder="Sua senha" onChange={(e) => setPassword(e.target.value)} autoComplete="off" />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formBasicCheckbox">
+              <Form.Check type="checkbox" label="Salvar senha" />
+            </Form.Group>
+            <Button variant="primary" disabled={loading} onClick={() => handleLogin()} style={{
+              width: '100%',
+              background: 'grey',
+            }}>
+              {
+                loading
+                  ? <>
+                    <Spinner animation="border" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </Spinner>
+                  </>
+                  : <>Entrar</>
+              }
+            </Button>
+          </Form>
+        </div>
+      </>
   );
 }
