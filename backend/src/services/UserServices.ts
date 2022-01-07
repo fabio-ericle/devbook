@@ -6,23 +6,19 @@ import { hash, compare } from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
 import { AppError } from '../shared/error/AppError';
 
-interface UserProps {
-   data: {
-      user_id: string;
-      user_name: string;
-      user_email: string;
-      user_password: string;
-   },
-}
-
 export class UserServices {
 
    async create(user: Partial<User>) {
-      const userRepository = getCustomRepository(UserRepository);
 
-      if (user.user_name!.length < 5 || user.user_email!.length < 5 || user.user_password!.length < 5) {
+      if (typeof user.user_name !== 'string' || typeof user.user_email !== 'string' || typeof user.user_password !== 'string') {
          throw new AppError("Não foi possível concluir o cadastro!", 401);
       }
+      if (user.user_name.length < 5 || user.user_email.length < 5 || user.user_password.length < 5) {
+         throw new AppError("Não foi possível concluir o cadastro!", 401);
+      }
+
+      const userRepository = getCustomRepository(UserRepository);
+
       const userAlreadyExists = await userRepository.findOne({ 
          where: { user_email : user.user_email } 
       });
@@ -67,22 +63,31 @@ export class UserServices {
    }
 
    async getUser(user: Pick<User, "user_id">) {
+      if(user.user_id.length < 10 || typeof user.user_id !== 'string') {
+         throw new AppError("ID iválido", 401);
+      }
+
       const userRepository = getRepository(User);
 
       const currentUser = await userRepository.findOne({ where: { user_id : user.user_id }});
       if (!user.user_id) {
          throw new AppError("Usuário não encontrado!", 401);
       }
+
       delete currentUser.user_password;
 
       return currentUser;
    }
 
    async getById(user: Pick<User, "user_id">) {
+      if(user.user_id.length < 10 || typeof user.user_id !== 'string') {
+         throw new AppError("ID iválido", 401);
+      }
+
       const userRepository = getRepository(User);
 
       const currentUser = await userRepository.findOne({ where: { user_id : user.user_id }});
-      if (!user.user_id) {
+      if (!currentUser) {
          throw new AppError("Usuário não encontrado!", 401);
       }
       delete currentUser.user_password;
@@ -93,7 +98,7 @@ export class UserServices {
    async update(user: Partial<User>) {
       const userRepository = getCustomRepository(UserRepository);
 
-      if (user.user_id.length < 10) {
+      if (typeof user.user_id !== 'string' || user.user_id.length < 10) {
          throw new AppError("Não foi possível concluir o cadastro!", 401);
       }
 
@@ -114,6 +119,10 @@ export class UserServices {
    }
 
    async delete(user: Pick<User, "user_id">) {
+      if(typeof user.user_id !== 'string' || user.user_id.length < 10) {
+         throw new AppError("ID iválido", 401);
+      }
+
       const userRepository = getCustomRepository(UserRepository);
 
       const userAlreadyExists = await userRepository.findOne({
@@ -133,16 +142,20 @@ export class UserServices {
    async auth(user: Pick<User, "user_email"|"user_password">) {
       const userRepository = getCustomRepository(UserRepository);
 
+      if (typeof user.user_email !== 'string' || typeof user.user_password !== 'string') {
+         throw new AppError("Não foi possível concluir a ação!", 401);
+      }
+      
       if (user.user_email.length < 5 || user.user_password.length < 5) {
          throw new AppError("Não foi possível concluir a ação!", 401);
       }
 
       const currentUser = await userRepository.findOne({ "user_email": user.user_email });
-      if (!user) {
+      if (!currentUser) {
          throw new AppError("Email/Senha incorretos!", 40);
       }
 
-      const passwordMatch = await compare(user.user_password, user.user_password);
+      const passwordMatch = await compare(user.user_password, currentUser.user_password);
       if (!passwordMatch) {
          throw new AppError("Email/Senha incorretos!", 401);
       }
