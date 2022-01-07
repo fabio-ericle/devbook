@@ -21,7 +21,7 @@ export class UserController {
       const userServices = new UserServices();
       const user = await userServices.getUser(request.user);
       
-      return response.json(user);
+      return response.status(200).send(user);
    }
 
    async userById(request: Request, response: Response) {
@@ -29,12 +29,13 @@ export class UserController {
       const { user_id = '' } = request.params;
       const user = await userServices.getById({ user_id });
       
-      return response.json(user);
+      return response.status(200).send(user);
    }
 
    async update(request: Request, response: Response) {
-      const { user_id, user_name, user_email } = request.body;
+      const { user_name, user_email } = request.body;
       const userServices = new UserServices();
+      const user_id = request.user.user_id;
       const result = await userServices.update({ user_id, user_name, user_email });
 
       return response.status(200).send(result);
