@@ -4,57 +4,57 @@ import { classToPlain } from 'class-transformer';
 import { User } from '../entities/User';
 import { hash, compare } from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
+import { AppError } from '../shared/error/AppError';
 
 interface UserProps {
    data: {
-      user_id?: string;
-      user_name?: string;
-      user_email?: string;
-      user_password?: string;
+      user_id: string;
+      user_name: string;
+      user_email: string;
+      user_password: string;
    },
 }
 
 export class UserServices {
 
-   async create({ data }: UserProps,) {
+   async create(user: Partial<User>) {
       const userRepository = getCustomRepository(UserRepository);
-      if (data.user_name!.length < 5 || data.user_email!.length < 5 || data.user_password!.length < 5) {
-         throw new Error("Não foi possível concluir o cadastro!");
+
+      if (user.user_name!.length < 5 || user.user_email!.length < 5 || user.user_password!.length < 5) {
+         throw new AppError("Não foi possível concluir o cadastro!", 401);
       }
-      const userAlreadyExists = await userRepository.findOne({ "user_email": data.user_email });
+      const userAlreadyExists = await userRepository.findOne({ 
+         where: { user_email : user.user_email } 
+      });
       if (userAlreadyExists) {
-         throw new Error("Email já cadastrado!");
+         throw new AppError("Email já cadastrado!", 401);
       }
-      const passwordHash = await hash(data.user_password!, 8);
-      const user = userRepository.create({
-         user_name: data.user_name,
-         user_email: data.user_email,
+
+      const passwordHash = await hash(user.user_password, 8);
+
+      const createUser = userRepository.create({
+         user_name: user.user_name,
+         user_email: user.user_email,
          user_password: passwordHash
       });
-      await userRepository.save(user);
-      const email = data.user_email;
-      const password = data.user_password;
-      const token = sign({ email, password }, 
+
+      await userRepository.save(createUser);
+
+      const token = sign({ 
+         user_name: user.user_name,
+         user_email: user.user_email,
+       }, 
          process.env.SESSION_TOKEN as string, 
          {
-            subject: user.user_id,
+            subject: createUser.user_id,
             expiresIn: "14d"
       });
-      return {
-         "status": "salvo",   
-         "user": {
-            "token": token,
-            "data" : {
-               "user_id": user.user_id,
-               "user_name": data.user_name,
-               "user_email": data.user_email,
-            },
-         },
-      };
+      return { token : token };
    }
 
    async get() {
       const userRepository = getCustomRepository(UserRepository);
+      
       const users = await userRepository.find({
          select: [
             "user_id",
@@ -62,79 +62,87 @@ export class UserServices {
             "user_email"
          ]
       });
+
       return classToPlain(users);
    }
 
    async getById(user_id: string) {
       const userRepository = getRepository(User);
+
       const currentUser = await userRepository.findOne({ where: { user_id : user_id }});
       if (!user_id) {
-         throw new Error("Usuário não encontrado!");
+         throw new AppError("Usuário não encontrado!", 401);
       }
       delete currentUser.user_password;
 
       return currentUser;
    }
 
-   async update({ data }: UserProps) {
+   async update(user: Partial<User>) {
       const userRepository = getCustomRepository(UserRepository);
-      if (data.user_id!.length < 10) {
-         throw new Error("Não foi possível concluir o cadastro!");
+
+      if (user.user_id.length < 10) {
+         throw new AppError("Não foi possível concluir o cadastro!", 401);
       }
-      const userAlreadyExists = await userRepository.findOne(data.user_id);
+
+      const userAlreadyExists = await userRepository.findOne(user.user_id);
       if (!userAlreadyExists) {
-         throw new Error("Usuário não encontrado!");
+         throw new AppError("Usuário não encontrado!", 401);
       }
+
       getConnection().createQueryBuilder().update(User).set({
-         user_name: data.user_name,
-         user_email: data.user_email,
+         user_name: user.user_name,
+         user_email: user.user_email,
       }).where(
          "user_id = :user_id",
-         { user_id: data.user_id! }
+         { user_id: user.user_id! }
       ).execute();
+
       return { "status": "salvo" };
    }
 
    async delete(user_id: string) {
       const userRepository = getCustomRepository(UserRepository);
+
       const userAlreadyExists = await userRepository.findOne(user_id!);
       if (!userAlreadyExists) {
-         throw new Error("Usuário não encontrado!");
+         throw new AppError("Usuário não encontrado!", 401);
       }
+
       await userRepository.delete({
          user_id: user_id!,
       });
+      
       return { "status": "salvo" };
    }
 
-   async auth({ data: { user_email, user_password } }: UserProps) {
+   async auth(user: Partial<User>) {
       const userRepository = getCustomRepository(UserRepository);
-      if (user_email.length < 5 || user_password.length < 5) {
-         throw new Error("Não foi possível concluir a ação!");
+
+      if (user.user_email.length < 5 || user.user_password.length < 5) {
+         throw new AppError("Não foi possível concluir a ação!", 401);
       }
-      const user = await userRepository.findOne({ "user_email": user_email });
+
+      const currentUser = await userRepository.findOne({ "user_email": user.user_email });
       if (!user) {
-         throw new Error("Email/Senha incorretos!");
+         throw new AppError("Email/Senha incorretos!", 40);
       }
-      const passwordMatch = await compare(user_password, user.user_password);
+
+      const passwordMatch = await compare(user.user_password, user.user_password);
       if (!passwordMatch) {
-         throw new Error("Email/Senha incorretos!");
+         throw new AppError("Email/Senha incorretos!", 401);
       }
-      const token = sign({ user_email, user_password }, 
+
+      const token = sign({ 
+         user_name: user.user_name,
+         user_email: user.user_email,
+       }, 
          process.env.SESSION_TOKEN as string, 
          {
-            subject: user.user_id,
+            subject: currentUser.user_id,
             expiresIn: "14d"
       });
-      return classToPlain({
-         "user": {
-            "token": token,
-            "data": {
-               "user_id": user.user_id,
-               "user_name": user.user_name,
-               "user_email": user.user_email,
-            },
-         },
-      });
+      
+      return { token : token };
    }
 }
