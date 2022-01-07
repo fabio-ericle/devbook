@@ -15,7 +15,10 @@ export function ensureAuthenticated(request: Request, response: Response, next: 
    
    try {
       const { sub } = verify(token, process.env.SESSION_TOKEN as string) as IPayload;
-      request.user_id = sub;
+      
+      request.user = {
+         user_id : sub
+      };
 
       return next();
    } catch (error) {
