@@ -4,6 +4,7 @@ import { UserRepository } from '../repositories/UserRepository';
 import { classToPlain } from 'class-transformer';
 import { Post } from '../entities/Post';
 import { User } from '../entities/User';
+import { AppError } from '../shared/error/AppError';
 
 type PostProps = {
    data: {
@@ -19,14 +20,14 @@ export class PostServices {
       const userRepository = getCustomRepository(UserRepository);
 
       if (post.post_title.length < 5 || post.post_content.length < 5 || post.user_id.length < 5) {
-         throw new Error("Não foi possível concluir a ação!");
+         throw new AppError("Não foi possível concluir a ação!", 401);
       }
 
       const userExists = await userRepository.findOne(
          { where: { user_id : user.user_id } }
       );
       if (!user) {
-         throw new Error("Não foi possível concluir a ação!");
+         throw new AppError("Não foi possível concluir a ação!", 401);
       }
 
       const dateNow = Date.now();
@@ -53,34 +54,46 @@ export class PostServices {
    }
 
    async getById(id: string) {
-      if (id.length < 10 || id === '') {
-         throw new Error("Impossível concluir a ação!");
+      if (id.length < 10 || id === '' || typeof id !== 'string') {
+         throw new AppError("Impossível concluir a ação!", 401);
       }
 
       const postRepository = getCustomRepository(PostRepository);
       
-      const post = await postRepository.findOne({ 
+      const currentPost = await postRepository.findOne({ 
          where: { post_id : id }
        });
-      if (!post) {
-         throw new Error("Publicação não encontrada!");
+      if (!currentPost) {
+         throw new AppError("Publicação não encontrada!", 401);
       }
 
-      return classToPlain(post);
+      return classToPlain(currentPost);
    }
 
-   async delete(id: string) {
-      if (id.length < 10 || id === '') {
-         throw new Error("Impossível concluir a ação!");
+   async delete(id: string, user: Pick<User, "user_id">) {
+      if (id.length < 10 || id === '' || typeof id !== 'string') {
+         throw new AppError("Impossível concluir a ação!", 401);
       }
 
       const postRepository = getCustomRepository(PostRepository);
+      const userRepository = getCustomRepository(UserRepository);
 
-      const post = await postRepository.findOne({
+      const currentUser = await userRepository.findOne({
+         where: { user_id : user.user_id }
+      });
+      if(!currentUser) {
+         throw new AppError("Não foi possível excluir esse post", 401);
+      }
+
+      const currentPost = await postRepository.findOne({
          where: { post_id : id }
       });
-      if (!post) {
-         throw new Error("Publicação não encontrada!");
+      if (!currentPost) {
+         throw new AppError("Publicação não encontrada!", 401);
+      }
+
+      if(currentPost.user_id !== user.user_id) {
+         throw new AppError("Operação não permitida", 401);
       }
 
       await postRepository.delete({
