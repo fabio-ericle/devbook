@@ -18,7 +18,7 @@ export class PostController {
    }
 
    async getById(request: Request, response: Response) {
-      const { id } = request.query;
+      const { id = ''} = request.params;
       const postServices = new PostServices();
       const post = await postServices.getById(id as string);
       
@@ -26,9 +26,9 @@ export class PostController {
    }
 
    async delete(request: Request, response: Response) {
-      const { id } = request.query;
+      const { id = ''} = request.query;
       const postServices = new PostServices();
-      const result = await postServices.delete(id as string);
+      const result = await postServices.delete(id as string, request.user);
       
       return response.json(result);
    }
